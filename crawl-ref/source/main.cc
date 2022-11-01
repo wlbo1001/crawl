@@ -62,6 +62,7 @@
 #include "directn.h"
 #include "dlua.h"
 #include "dungeon.h"
+#include "edit-options.cc"
 #include "end.h"
 #include "env.h"
 #include "tile-env.h"
@@ -819,6 +820,7 @@ static bool _cmd_is_repeatable(command_type cmd, bool is_again = false)
     case CMD_RESISTS_SCREEN:
     case CMD_READ_MESSAGES:
     case CMD_SEARCH_STASHES:
+    case CMD_EDIT_OPTIONS:
     case CMD_LOOKUP_HELP:
         mpr("You can't repeat informational commands.");
         return false;
@@ -1966,6 +1968,8 @@ public:
 #endif
         add_entry(new CmdMenuEntry("Edit macros",
             MEL_ITEM, '~', CMD_MACRO_MENU));
+        add_entry(new CmdMenuEntry("Edit Settings Files",
+            MEL_ITEM, '*', CMD_EDIT_OPTIONS))
         add_entry(new CmdMenuEntry("Help and manual",
             MEL_ITEM, '?', CMD_DISPLAY_COMMANDS));
         add_entry(new CmdMenuEntry("Lookup info",
@@ -2230,6 +2234,10 @@ void process_command(command_type cmd, command_type prev_cmd)
     case CMD_RESISTS_SCREEN:           print_overview_screen();        break;
     case CMD_LOOKUP_HELP:
         keyhelp_query_descriptions(prev_cmd == CMD_GAME_MENU
+                                                ? prev_cmd : CMD_NO_CMD);
+        break;
+    case CMD_EDIT_OPTIONS:
+        openEditOptions(prev_cmd == CMD_GAME_MENU
                                                 ? prev_cmd : CMD_NO_CMD);
         break;
 
