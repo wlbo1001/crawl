@@ -1969,7 +1969,7 @@ public:
         add_entry(new CmdMenuEntry("Edit macros",
             MEL_ITEM, '~', CMD_MACRO_MENU));
         add_entry(new CmdMenuEntry("Edit Settings Files",
-            MEL_ITEM, '*', CMD_EDIT_OPTIONS))
+            MEL_ITEM, '*', CMD_EDIT_OPTIONS));
         add_entry(new CmdMenuEntry("Help and manual",
             MEL_ITEM, '?', CMD_DISPLAY_COMMANDS));
         add_entry(new CmdMenuEntry("Lookup info",
