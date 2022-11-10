@@ -36,7 +36,7 @@ class EditOptionsMenu : public Menu
         cycle_hover();
         return Menu::show(reuse_selections);
     }
-    
+
     private:
     command_type back_cmd;
 };
