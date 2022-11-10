@@ -23,9 +23,7 @@ class EditOptionsMenu : public Menu
             back_button->add_tile(tileidx_command(back_cmd));
 
         for (int i = 0; i < 12; i++)
-        {
             add_entry(new MenuEntry("Test Option #" + std::to_string(i), MEL_ITEM));
-        }
         add_entry(new MenuEntry("", MEL_SUBTITLE));
         add_entry(back_button);
     }
