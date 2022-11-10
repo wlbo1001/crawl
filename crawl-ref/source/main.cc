@@ -1968,7 +1968,7 @@ public:
 #endif
         add_entry(new CmdMenuEntry("Edit macros",
             MEL_ITEM, '~', CMD_MACRO_MENU));
-        add_entry(new CmdMenuEntry("Edit Settings Files",
+        add_entry(new CmdMenuEntry("Edit Settings Files",//------------------------------------------------------------------------------------------------------
             MEL_ITEM, '*', CMD_EDIT_OPTIONS));
         add_entry(new CmdMenuEntry("Help and manual",
             MEL_ITEM, '?', CMD_DISPLAY_COMMANDS));
@@ -2236,10 +2236,12 @@ void process_command(command_type cmd, command_type prev_cmd)
         keyhelp_query_descriptions(prev_cmd == CMD_GAME_MENU
                                                 ? prev_cmd : CMD_NO_CMD);
         break;
-    case CMD_EDIT_OPTIONS:
+    case CMD_EDIT_OPTIONS://----------------------------------------------------------------------------------------------------
         openEditOptions(prev_cmd == CMD_GAME_MENU
                                                 ? prev_cmd : CMD_NO_CMD);
         break;
+    case CMD_EDIT_SUBOPTIONS:
+        openEditSubOptions(CMD_EDIT_OPTIONS);
 
     case CMD_DISPLAY_RELIGION:
     {
