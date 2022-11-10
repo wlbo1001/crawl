@@ -2241,7 +2241,9 @@ void process_command(command_type cmd, command_type prev_cmd)
                                                 ? prev_cmd : CMD_NO_CMD);
         break;
     case CMD_EDIT_SUBOPTIONS:
-        openEditSubOptions(CMD_EDIT_OPTIONS);
+        openEditSubOptions(prev_cmd == CMD_EDIT_OPTIONS ? prev_cmd : CMD_NO_CMD);
+
+        break;
 
     case CMD_DISPLAY_RELIGION:
     {
