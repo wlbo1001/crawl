@@ -2237,9 +2237,7 @@ void process_command(command_type cmd, command_type prev_cmd)
                                                 ? prev_cmd : CMD_NO_CMD);
         break;
     case CMD_EDIT_OPTIONS://----------------------------------------------------------------------------------------------------
-        openEditOptions(prev_cmd == CMD_GAME_MENU ? prev_cmd : CMD_NO_CMD);
-        
-        process_command(CMD_EDIT_SUBOPTIONS, CMD_EDIT_OPTIONS);
+        openEditOptions();
         
         break;
     case CMD_EDIT_SUBOPTIONS:
