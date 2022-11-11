@@ -68,32 +68,17 @@ public:
     void fill_entries()
     {
         clear();
-        add_entry(new CmdMenuEntry("Menu", MEL_TITLE));
+        add_entry(new CmdMenuEntry("Edit Options Menu", MEL_TITLE));
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
-        add_entry(new CmdMenuEntry("Return to game", MEL_ITEM, CK_ESCAPE,
-            CMD_NO_CMD, false));
-        items[1]->add_tile(tileidx_command(CMD_GAME_MENU));
         // n.b. CMD_SAVE_GAME_NOW crashes on returning to the main menu if we
         // don't exit out of this popup now, not sure why
-        add_entry(new CmdMenuEntry(
-            (crawl_should_restart(game_exit::save)
-                ? "Save and return to main menu"
-                : "Save and exit"),
-            MEL_ITEM, 'S', CMD_SAVE_GAME_NOW, false));
-        add_entry(new CmdMenuEntry("It's a bomb!",//------------------------------------------------------------------------------------------------------
+        add_entry(new CmdMenuEntry("Key Binds",//------------------------------------------------------------------------------------------------------
             MEL_ITEM, '*', CMD_EDIT_SUBOPTIONS));
-        add_entry(new CmdMenuEntry("Help and manual",
-            MEL_ITEM, '?', CMD_DISPLAY_COMMANDS));
-        add_entry(new CmdMenuEntry("Lookup info",
-            MEL_ITEM, '/', CMD_LOOKUP_HELP));
-#ifdef TARGET_OS_MACOSX
-        add_entry(new CmdMenuEntry("Show options file in finder",
-            MEL_ITEM, 'O', CMD_REVEAL_OPTIONS));
-#endif
+        add_entry(new CmdMenuEntry("In Game Options",//------------------------------------------------------------------------------------------------------
+            MEL_ITEM, '&', CMD_EDIT_SUBOPTIONS));
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
-        add_entry(new CmdMenuEntry(
-            "Quit and <lightred>abandon character</lightred>",
-            MEL_ITEM, 'Q', CMD_QUIT, false));
+        add_entry(new CmdMenuEntry("Back to game menu", MEL_ITEM, CK_ESCAPE,
+            CMD_NO_CMD, false));
     }
 
     vector<MenuEntry*> show(bool reuse_selections = false) override
@@ -176,27 +161,17 @@ public:
     void fill_entries()
     {
         clear();
-        add_entry(new CmdMenuEntry("Submenu", MEL_TITLE));
+        add_entry(new CmdMenuEntry("Test Sub-Menu", MEL_TITLE));
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
-        add_entry(new CmdMenuEntry("Return to game", MEL_ITEM, CK_ESCAPE,
-            CMD_NO_CMD, false));
         items[1]->add_tile(tileidx_command(CMD_GAME_MENU));
         // n.b. CMD_SAVE_GAME_NOW crashes on returning to the main menu if we
         // don't exit out of this popup now, not sure why
-        add_entry(new CmdMenuEntry("It's a bomby!",//------------------------------------------------------------------------------------------------------
-            MEL_ITEM));
-        add_entry(new CmdMenuEntry("Help and manual",
-            MEL_ITEM, '?', CMD_DISPLAY_COMMANDS));
-        add_entry(new CmdMenuEntry("Lookup info",
-            MEL_ITEM, '/', CMD_LOOKUP_HELP));
-#ifdef TARGET_OS_MACOSX
-        add_entry(new CmdMenuEntry("Show options file in finder",
-            MEL_ITEM, 'O', CMD_REVEAL_OPTIONS));
-#endif
+        for (int i = 1; i < 12; i++) {
+            add_entry(new CmdMenuEntry("Test Option #" + std::to_string(i), MEL_ITEM));
+        }
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
-        add_entry(new CmdMenuEntry(
-            "Quit and <lightred>abandon character</lightred>",
-            MEL_ITEM, 'Q', CMD_QUIT, false));
+        add_entry(new CmdMenuEntry("Back to game menu", MEL_ITEM, CK_ESCAPE,
+            CMD_NO_CMD, false));
     }
 
     vector<MenuEntry*> show(bool reuse_selections = false) override
