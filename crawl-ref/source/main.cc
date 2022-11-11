@@ -2241,7 +2241,7 @@ void process_command(command_type cmd, command_type prev_cmd)
         
         break;
     case CMD_EDIT_SUBOPTIONS:
-        openEditSubOptions(prev_cmd == CMD_EDIT_OPTIONS ? prev_cmd : CMD_NO_CMD);
+        openEditSubOptions();
 
         break;
 
