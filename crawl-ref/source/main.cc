@@ -2238,7 +2238,7 @@ void process_command(command_type cmd, command_type prev_cmd)
         break;
     case CMD_EDIT_OPTIONS://----------------------------------------------------------------------------------------------------
         openEditOptions();
-        
+
         break;
     case CMD_EDIT_SUBOPTIONS:
         openEditSubOptions();
