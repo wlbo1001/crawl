@@ -2,7 +2,8 @@
 #include "menu.h"
 #include "tilepick.h"
 
-
+int type;
+int opt;
 class EditOptionsMenu : public Menu
 {
     // this could be easily generalized for other menus that select among commands
@@ -106,9 +107,9 @@ public:
     public:
         CmdMenuEntry(string label, MenuEntryLevel _level, int hotk = 0,
             command_type _cmd = CMD_NO_CMD,
-            bool _uses_popup = true)
+            bool _uses_popup = true, int _type = 0, int _option = 0)
             : MenuEntry(label, _level, 1, hotk), cmd(_cmd),
-            uses_popup(_uses_popup)
+            uses_popup(_uses_popup), type(_type), option(_option)
         {
             if (tileidx_command(cmd) != TILEG_TODO)
                 add_tile(tileidx_command(cmd));
@@ -116,6 +117,8 @@ public:
 
         command_type cmd;
         bool uses_popup;
+        int option;
+        int type;
     };
 
     command_type cmd;
@@ -136,6 +139,8 @@ public:
             const CmdMenuEntry* c = dynamic_cast<const CmdMenuEntry*>(&item);
             if (c)
             {
+                type = c->type;
+                opt = c->option;
                 if (c->uses_popup)
                 {
                     // recurse
@@ -166,6 +171,7 @@ public:
         items[1]->add_tile(tileidx_command(CMD_GAME_MENU));
         // n.b. CMD_SAVE_GAME_NOW crashes on returning to the main menu if we
         // don't exit out of this popup now, not sure why
+        add_entry(new CmdMenuEntry("Clear Messages", MEL_ITEM, '1', CMD_EDIT_OPTION, false, 1, 0));
         for (int i = 1; i < 12; i++) {
             add_entry(new CmdMenuEntry("Test Option #" + std::to_string(i), MEL_ITEM));
         }
@@ -184,5 +190,28 @@ public:
 void openEditSubOptions()
 {
     EditSubOptionsMenu m;
+    Options.clear_messages = true;
     m.show();
+}
+
+void changeSetting()
+{
+    switch(type)
+    {
+        case 1: //bool
+            switch(opt)
+            {
+                case 1:
+                    Options.clear_messages = !Options.clear_messages;
+                    break;
+            }
+            break;
+        case 2: //key bind
+
+            break;
+        case 3: //drop down
+
+            break;
+    }
+
 }
