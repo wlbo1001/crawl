@@ -2247,6 +2247,9 @@ void process_command(command_type cmd, command_type prev_cmd)
     case CMD_EDIT_OPTION:
         changeSetting();
         break;
+    case CMD_SAVE_CHANGES:
+        saveChanges();
+        break;
     case CMD_DISPLAY_RELIGION:
     {
         describe_god(you.religion);

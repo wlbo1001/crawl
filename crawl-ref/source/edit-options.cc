@@ -81,7 +81,8 @@ public:
         add_entry(new CmdMenuEntry("In Game Options",//------------------------------------------------------------------------------------------------------
             MEL_ITEM, '&', CMD_EDIT_SUBOPTIONS));
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
-        add_entry(new CmdMenuEntry("Back to game menu", MEL_ITEM, CK_ESCAPE,
+        add_entry(new CmdMenuEntry("Save Changes", MEL_ITEM, 's', CMD_SAVE_CHANGES, false));
+        add_entry(new CmdMenuEntry("Back to Game Menu", MEL_ITEM, CK_ESCAPE,
             CMD_NO_CMD, false));
     }
 
@@ -179,7 +180,7 @@ public:
             add_entry(new CmdMenuEntry("Test Option #" + std::to_string(i), MEL_ITEM));
         }
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
-        add_entry(new CmdMenuEntry("Back to game menu", MEL_ITEM, CK_ESCAPE,
+        add_entry(new CmdMenuEntry("Back to Edit Options Menu", MEL_ITEM, CK_ESCAPE,
             CMD_NO_CMD, false));
     }
 
@@ -209,43 +210,6 @@ void changeSetting()
                     // Change configuration
                     Options.clear_messages = !Options.clear_messages;
 
-                    // Save configuration to init file
-                    std::fstream initFileOld;
-                    std::fstream initFileNew;
-                    std::string currentLine;
-                    std::string desiredOption = "clear_messages";
-                    initFileOld.open("../settings/init.txt", ios::in);
-                    initFileNew.open("../settings/initNew.txt", fstream::trunc | fstream::out);
-                    if (initFileOld.is_open())
-                    {
-                        while (std::getline(initFileOld, currentLine))
-                        {
-                            if(currentLine.find(desiredOption) != string::npos)
-                            {
-                                if (Options.clear_messages)
-                                {
-                                    initFileNew << desiredOption << " = true" << endl;
-                                }
-                                else
-                                {
-                                    initFileNew << desiredOption << " = false" << endl;
-                                }
-                            }
-                            else
-                            {
-                                initFileNew << currentLine << endl;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        mpr("init.txt could not be found. Settings changes not saved.");
-                    }
-                    initFileOld.close();
-                    initFileNew.close();
-                    std::remove("../settings/init.txt");
-                    std::rename("../settings/initNew.txt", "../settings/init.txt");
-
                     break;
             }
             break;
@@ -254,4 +218,60 @@ void changeSetting()
         case 3: //drop down
             break;
     }
+}
+
+// Write configuration of passed option to new init file
+// Example input: clear messages setting
+// - desiredOptionString = "clear_messages"
+// - desiredOptionString = Options.clear_messages
+void writeConfiguration(std::string desiredOptionString, bool desiredOptionConfiguration)
+{
+    // Open new and old init files
+    std::fstream initFileOld;
+    std::fstream initFileNew;
+    initFileOld.open("../settings/init.txt", ios::in);
+    initFileNew.open("../settings/initNew.txt", fstream::trunc | fstream::out);
+
+    // Iterate through old init file and modify/append the desired option
+    std::string currentLine;
+    if (initFileOld.is_open())
+    {
+        while (std::getline(initFileOld, currentLine))
+        {
+            if(currentLine.find(desiredOptionString) != string::npos) // modify
+            {
+                if (desiredOptionConfiguration)
+                {
+                    initFileNew << desiredOptionString << " = true" << endl;
+                }
+                else
+                {
+                    initFileNew << desiredOptionString << " = false" << endl;
+                }
+            }
+            else // append
+            {
+                initFileNew << currentLine << endl;
+            }
+        }
+    }
+    else // init file unsuccessfully opened
+    {
+        mpr("init.txt could not be found. Settings changes not saved.");
+    }
+
+    // Close new and old init files
+    initFileOld.close();
+    initFileNew.close();
+}
+
+// Save changes to init.txt
+void saveChanges()
+{
+    // Overwrite old init file with new init file
+    std::remove("../settings/init.txt");
+    std::rename("../settings/initNew.txt", "../settings/init.txt");
+
+    // Output changes to message log
+    mpr("Changes saved to 'init.txt'.");
 }
