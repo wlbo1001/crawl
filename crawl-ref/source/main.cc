@@ -821,6 +821,8 @@ static bool _cmd_is_repeatable(command_type cmd, bool is_again = false)
     case CMD_READ_MESSAGES:
     case CMD_SEARCH_STASHES:
     case CMD_EDIT_OPTIONS:
+    case CMD_EDIT_SUBOPTIONS:
+    case CMD_EDIT_OPTION:
     case CMD_LOOKUP_HELP:
         mpr("You can't repeat informational commands.");
         return false;
@@ -1968,7 +1970,7 @@ public:
 #endif
         add_entry(new CmdMenuEntry("Edit macros",
             MEL_ITEM, '~', CMD_MACRO_MENU));
-        add_entry(new CmdMenuEntry("Edit Settings Files",//------------------------------------------------------------------------------------------------------
+        add_entry(new CmdMenuEntry("Edit settings files",//------------------------------------------------------------------------------------------------------
             MEL_ITEM, '*', CMD_EDIT_OPTIONS));
         add_entry(new CmdMenuEntry("Help and manual",
             MEL_ITEM, '?', CMD_DISPLAY_COMMANDS));
@@ -2238,15 +2240,12 @@ void process_command(command_type cmd, command_type prev_cmd)
         break;
     case CMD_EDIT_OPTIONS://----------------------------------------------------------------------------------------------------
         openEditOptions();
-
         break;
     case CMD_EDIT_SUBOPTIONS:
         openEditSubOptions();
-
         break;
     case CMD_EDIT_OPTION:
         changeSetting();
-
         break;
     case CMD_DISPLAY_RELIGION:
     {

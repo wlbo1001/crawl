@@ -1,9 +1,12 @@
 #include <string>
+#include <iostream>
+#include <fstream>
 #include "menu.h"
 #include "tilepick.h"
 
-int type;
-int opt;
+int type; // specifies the type of option being configured
+int opt; // specifies the specific option being configured
+
 class EditOptionsMenu : public Menu
 {
     // this could be easily generalized for other menus that select among commands
@@ -190,28 +193,65 @@ public:
 void openEditSubOptions()
 {
     EditSubOptionsMenu m;
-    Options.clear_messages = true;
     m.show();
 }
 
 void changeSetting()
 {
+    mpr("changeSetting() called"); // debug output
+
     switch(type)
     {
         case 1: //bool
             switch(opt)
             {
                 case 1:
+                    // Change configuration
                     Options.clear_messages = !Options.clear_messages;
+
+                    // Save configuration to init file
+                    std::fstream initFileOld;
+                    std::fstream initFileNew;
+                    std::string currentLine;
+                    std::string desiredOption = "clear_messages";
+                    initFileOld.open("../settings/init.txt", ios::in);
+                    initFileNew.open("../settings/initNew.txt", fstream::trunc | fstream::out);
+                    if (initFileOld.is_open())
+                    {
+                        while (std::getline(initFileOld, currentLine))
+                        {
+                            if(currentLine.find(desiredOption) != string::npos)
+                            {
+                                if (Options.clear_messages)
+                                {
+                                    initFileNew << desiredOption << " = true" << endl;
+                                }
+                                else
+                                {
+                                    initFileNew << desiredOption << " = false" << endl;
+                                }
+                            }
+                            else
+                            {
+                                initFileNew << currentLine << endl;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        mpr("init.txt could not be found. Settings changes not saved.");
+                    }
+                    initFileOld.close();
+                    initFileNew.close();
+                    std::remove("../settings/init.txt");
+                    std::rename("../settings/initNew.txt", "../settings/init.txt");
+
                     break;
             }
             break;
         case 2: //key bind
-
             break;
         case 3: //drop down
-
             break;
     }
-
 }
