@@ -4,12 +4,32 @@
 #include "menu.h"
 #include "tilepick.h"
 
-int type; // specifies the type of option being configured
+enum settingType {BOOL, KEYBIND, DROPDOWN};
+
+settingType type; // specifies the type of option being configured
 int opt; // specifies the specific option being configured
 
 // Vectors that store all settings changes prior to a save
 std::vector<std::string> changesStrings; // e.g. "clear_messages"
 std::vector<bool> changesBooleans; // e.g. Options.clear_messages
+
+string _binaryToString(bool input) 
+{
+   return input ? "true" : "false";
+}
+
+string _getCurrentState(settingType settingType, int settingName)
+{
+    switch(settingType)
+    {
+        case BOOL:
+            switch(settingName)
+            {
+                case 1:
+                    return "Clear Messages \t\t\t" + _binaryToString(Options.clear_messages);
+            }
+    }
+}
 
 class EditOptionsMenu : public Menu
 {
@@ -115,7 +135,7 @@ public:
     public:
         CmdMenuEntry(string label, MenuEntryLevel _level, int hotk = 0,
             command_type _cmd = CMD_NO_CMD,
-            bool _uses_popup = true, int _type = 0, int _option = 0)
+            bool _uses_popup = true, settingType _type = BOOL, int _option = 0)
             : MenuEntry(label, _level, 1, hotk), cmd(_cmd),
             uses_popup(_uses_popup), type(_type), option(_option)
         {
@@ -126,7 +146,7 @@ public:
         command_type cmd;
         bool uses_popup;
         int option;
-        int type;
+        settingType type;
     };
 
     command_type cmd;
@@ -179,10 +199,7 @@ public:
         items[1]->add_tile(tileidx_command(CMD_GAME_MENU));
         // n.b. CMD_SAVE_GAME_NOW crashes on returning to the main menu if we
         // don't exit out of this popup now, not sure why
-        add_entry(new CmdMenuEntry("Clear Messages", MEL_ITEM, '1', CMD_EDIT_OPTION, true, 1, 1));
-        for (int i = 1; i < 12; i++) {
-            add_entry(new CmdMenuEntry("Test Option #" + std::to_string(i), MEL_ITEM));
-        }
+        add_entry(new CmdMenuEntry(_getCurrentState(BOOL, 1), MEL_ITEM, '1', CMD_EDIT_OPTION, true, BOOL, 1));
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
         add_entry(new CmdMenuEntry("Back to Edit Options Menu", MEL_ITEM, CK_ESCAPE,
             CMD_NO_CMD, false));
@@ -205,7 +222,7 @@ void changeSetting()
 {
     switch (type)
     {
-        case 1: //bool
+        case BOOL: 
             switch (opt)
             {
                 case 1:
@@ -235,9 +252,9 @@ void changeSetting()
                     break;
             }
             break;
-        case 2: //key bind
+        case KEYBIND: 
             break;
-        case 3: //drop down
+        case DROPDOWN:
             break;
     }
 }
