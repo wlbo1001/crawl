@@ -1,7 +1,5 @@
 #include <string>
 #include <vector>
-#include <tuple>
-#include <iostream>
 #include <fstream>
 #include "menu.h"
 #include "tilepick.h"
@@ -205,10 +203,10 @@ void openEditSubOptions()
 
 void changeSetting()
 {
-    switch(type)
+    switch (type)
     {
         case 1: //bool
-            switch(opt)
+            switch (opt)
             {
                 case 1:
                     // Change configuration
@@ -269,23 +267,17 @@ void saveChanges()
             {
                 for (int i = 0; i < changesStrings.size(); i++)
                 {
-                    if(currentLine.find(changesStrings.at(i)) != string::npos)
+                    if (currentLine.find(changesStrings.at(i)) != string::npos)
                     {
                         configurationExistences.at(i) = true;
 
                         if (changesBooleans.at(i))
-                        {
                             initFileNew << changesStrings.at(i) << " = true" << endl;
-                        }
                         else
-                        {
                             initFileNew << changesStrings.at(i) << " = false" << endl;
-                        }
                     }
                     else
-                    {
                         initFileNew << currentLine << endl;
-                    }
                 }
             }
 
@@ -295,13 +287,9 @@ void saveChanges()
                 if (!configurationExistences.at(i))
                 {
                     if (changesBooleans.at(i))
-                    {
                         initFileNew << changesStrings.at(i) << " = true" << endl;
-                    }
                     else
-                    {
                         initFileNew << changesStrings.at(i) << " = false" << endl;
-                    }
                 }
             }
 
@@ -315,9 +303,7 @@ void saveChanges()
 
             // Output changes to message log
             for (int i = 0; i < changesStrings.size(); i++)
-            {
                 mpr("Changes to " + changesStrings.at(i) + " saved to 'init.txt'.");
-            }
 
             // Clear changes vectors
             changesStrings.clear();
