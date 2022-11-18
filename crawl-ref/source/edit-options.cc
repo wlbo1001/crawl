@@ -106,8 +106,10 @@ public:
             MEL_ITEM, '&', CMD_EDIT_SUBOPTIONS));
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
         add_entry(new CmdMenuEntry("Save Changes", MEL_ITEM, 's', CMD_SAVE_CHANGES));
-        add_entry(new CmdMenuEntry("Back to Game Menu", MEL_ITEM, CK_ESCAPE,
-            CMD_NO_CMD, false));
+        CmdMenuEntry* quitWOSavingME = new CmdMenuEntry("Back to Game Menu without saving", MEL_ITEM, 'Q', CMD_NO_CMD, false);
+        quitWOSavingME->add_hotkey('q');
+        add_entry(quitWOSavingME);
+
     }
 
     vector<MenuEntry*> show(bool reuse_selections = false) override
@@ -201,8 +203,9 @@ public:
         // don't exit out of this popup now, not sure why
         add_entry(new CmdMenuEntry(_getCurrentState(BOOL, 1), MEL_ITEM, '1', CMD_EDIT_OPTION, true, BOOL, 1));
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
-        add_entry(new CmdMenuEntry("Back to Edit Options Menu", MEL_ITEM, CK_ESCAPE,
+        add_entry(new CmdMenuEntry("Back to Settings Menu", MEL_ITEM, CK_ESCAPE,
             CMD_NO_CMD, false));
+        
     }
 
     vector<MenuEntry*> show(bool reuse_selections = false) override
