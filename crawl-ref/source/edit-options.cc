@@ -1,4 +1,6 @@
 #include <string>
+#include <vector>
+#include <tuple>
 #include <iostream>
 #include <fstream>
 #include "menu.h"
@@ -6,6 +8,10 @@
 
 int type; // specifies the type of option being configured
 int opt; // specifies the specific option being configured
+
+// Vectors that store all settings changes prior to a save
+std::vector<std::string> changesStrings; // e.g. "clear_messages"
+std::vector<bool> changesBooleans; // e.g. Options.clear_messages
 
 class EditOptionsMenu : public Menu
 {
@@ -81,7 +87,7 @@ public:
         add_entry(new CmdMenuEntry("In Game Options",//------------------------------------------------------------------------------------------------------
             MEL_ITEM, '&', CMD_EDIT_SUBOPTIONS));
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
-        add_entry(new CmdMenuEntry("Save Changes", MEL_ITEM, 's', CMD_SAVE_CHANGES, false));
+        add_entry(new CmdMenuEntry("Save Changes", MEL_ITEM, 's', CMD_SAVE_CHANGES));
         add_entry(new CmdMenuEntry("Back to Game Menu", MEL_ITEM, CK_ESCAPE,
             CMD_NO_CMD, false));
     }
@@ -175,7 +181,7 @@ public:
         items[1]->add_tile(tileidx_command(CMD_GAME_MENU));
         // n.b. CMD_SAVE_GAME_NOW crashes on returning to the main menu if we
         // don't exit out of this popup now, not sure why
-        add_entry(new CmdMenuEntry("Clear Messages", MEL_ITEM, '1', CMD_EDIT_OPTION, false, 1, 0));
+        add_entry(new CmdMenuEntry("Clear Messages", MEL_ITEM, '1', CMD_EDIT_OPTION, true, 1, 1));
         for (int i = 1; i < 12; i++) {
             add_entry(new CmdMenuEntry("Test Option #" + std::to_string(i), MEL_ITEM));
         }
@@ -199,8 +205,6 @@ void openEditSubOptions()
 
 void changeSetting()
 {
-    mpr("changeSetting() called"); // debug output
-
     switch(type)
     {
         case 1: //bool
@@ -209,6 +213,26 @@ void changeSetting()
                 case 1:
                     // Change configuration
                     Options.clear_messages = !Options.clear_messages;
+
+                    // Store which option was changed and what its new configuration is
+                    std::string optionChanged = "clear_messages";
+                    bool optionConfiguration = Options.clear_messages;
+
+                    // Add configuration to changes vectors
+                    bool configurationExists = false;
+                    for (int i = 0; i < changesStrings.size(); i++)
+                    {
+                        if (changesStrings.at(i) == optionChanged)
+                        {
+                            configurationExists = true;
+                            changesBooleans.at(i) = optionConfiguration;
+                        }
+                    }
+                    if (!configurationExists)
+                    {
+                        changesStrings.push_back(optionChanged);
+                        changesBooleans.push_back(optionConfiguration);
+                    }
 
                     break;
             }
@@ -220,58 +244,90 @@ void changeSetting()
     }
 }
 
-// Write configuration of passed option to new init file
-// Example input: clear messages setting
-// - desiredOptionString = "clear_messages"
-// - desiredOptionString = Options.clear_messages
-void writeConfiguration(std::string desiredOptionString, bool desiredOptionConfiguration)
+// Save settings changes to init.txt
+void saveChanges()
 {
-    // Open new and old init files
+    // Open old init file
     std::fstream initFileOld;
-    std::fstream initFileNew;
     initFileOld.open("../settings/init.txt", ios::in);
-    initFileNew.open("../settings/initNew.txt", fstream::trunc | fstream::out);
 
-    // Iterate through old init file and modify/append the desired option
+    // Iterate through old init file and write to new init file
     std::string currentLine;
+    std::vector<bool> configurationExistences(changesStrings.size(), false);
     if (initFileOld.is_open())
     {
-        while (std::getline(initFileOld, currentLine))
+        // Continue only if there are changes to be saved
+        if (changesStrings.size() > 0)
         {
-            if(currentLine.find(desiredOptionString) != string::npos) // modify
+            // Open new init file
+            std::fstream initFileNew;
+            initFileNew.open("../settings/initNew.txt", fstream::trunc | fstream::out);
+
+            // Modify configurations that already exist
+            // Copy lines that do not contain relevant information
+            while (std::getline(initFileOld, currentLine))
             {
-                if (desiredOptionConfiguration)
+                for (int i = 0; i < changesStrings.size(); i++)
                 {
-                    initFileNew << desiredOptionString << " = true" << endl;
-                }
-                else
-                {
-                    initFileNew << desiredOptionString << " = false" << endl;
+                    if(currentLine.find(changesStrings.at(i)) != string::npos)
+                    {
+                        configurationExistences.at(i) = true;
+
+                        if (changesBooleans.at(i))
+                        {
+                            initFileNew << changesStrings.at(i) << " = true" << endl;
+                        }
+                        else
+                        {
+                            initFileNew << changesStrings.at(i) << " = false" << endl;
+                        }
+                    }
+                    else
+                    {
+                        initFileNew << currentLine << endl;
+                    }
                 }
             }
-            else // append
+
+            // Append configurations that do not already exist
+            for (int i = 0; i < changesStrings.size(); i++)
             {
-                initFileNew << currentLine << endl;
+                if (!configurationExistences.at(i))
+                {
+                    if (changesBooleans.at(i))
+                    {
+                        initFileNew << changesStrings.at(i) << " = true" << endl;
+                    }
+                    else
+                    {
+                        initFileNew << changesStrings.at(i) << " = false" << endl;
+                    }
+                }
             }
+
+            // Close new and old init files
+            initFileOld.close();
+            initFileNew.close();
+
+            // Overwrite old init file with new init file
+            std::remove("../settings/init.txt");
+            std::rename("../settings/initNew.txt", "../settings/init.txt");
+
+            // Output changes to message log
+            for (int i = 0; i < changesStrings.size(); i++)
+            {
+                mpr("Changes to " + changesStrings.at(i) + " saved to 'init.txt'.");
+            }
+
+            // Clear changes vectors
+            changesStrings.clear();
+            changesBooleans.clear();
+            configurationExistences.clear();
         }
     }
     else // init file unsuccessfully opened
     {
-        mpr("init.txt could not be found. Settings changes not saved.");
+        mpr("Settings changes not saved since 'init.txt' could not be found.");
+        mpr("Make sure 'init.txt' is located in the settings folder of the crawl-ref directory.");
     }
-
-    // Close new and old init files
-    initFileOld.close();
-    initFileNew.close();
-}
-
-// Save changes to init.txt
-void saveChanges()
-{
-    // Overwrite old init file with new init file
-    std::remove("../settings/init.txt");
-    std::rename("../settings/initNew.txt", "../settings/init.txt");
-
-    // Output changes to message log
-    mpr("Changes saved to 'init.txt'.");
 }
