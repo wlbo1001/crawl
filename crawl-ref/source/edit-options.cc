@@ -106,7 +106,7 @@ public:
             MEL_ITEM, '&', CMD_EDIT_SUBOPTIONS));
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
         add_entry(new CmdMenuEntry("Save Changes", MEL_ITEM, 's', CMD_SAVE_CHANGES));
-        CmdMenuEntry* quitWOSavingME = new CmdMenuEntry("Back to Game Menu without saving", MEL_ITEM, 'Q', CMD_NO_CMD, false);
+        CmdMenuEntry* quitWOSavingME = new CmdMenuEntry("Back to Game Menu without Saving", MEL_ITEM, 'Q', CMD_NO_CMD, false);
         quitWOSavingME->add_hotkey('q');
         add_entry(quitWOSavingME);
 
@@ -178,9 +178,18 @@ public:
                         ::process_command(c->cmd, CMD_GAME_MENU);
                     return true;
                 }
-                // otherwise, exit menu and process in the main process_command call
-                cmd = c->cmd;
-                return false;
+                else
+                {
+                    switch (c->cmd)
+                    {
+                        case CMD_EDIT_OPTION:
+                        ::process_command(c->cmd, CMD_GAME_MENU);
+                        default:
+                        // otherwise, exit menu and process in the main process_command call
+                        cmd = c->cmd;
+                        return false;
+                    }
+                }
             }
             return true;
         };
@@ -201,11 +210,9 @@ public:
         items[1]->add_tile(tileidx_command(CMD_GAME_MENU));
         // n.b. CMD_SAVE_GAME_NOW crashes on returning to the main menu if we
         // don't exit out of this popup now, not sure why
-        add_entry(new CmdMenuEntry(_getCurrentState(BOOL, 1), MEL_ITEM, '1', CMD_EDIT_OPTION, true, BOOL, 1));
+        add_entry(new CmdMenuEntry(_getCurrentState(BOOL, 1), MEL_ITEM, '1', CMD_EDIT_OPTION, false, BOOL, 1));
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
-        add_entry(new CmdMenuEntry("Back to Settings Menu", MEL_ITEM, CK_ESCAPE,
-            CMD_NO_CMD, false));
-        
+        add_entry(new CmdMenuEntry("Back to Settings Menu", MEL_ITEM, CK_ESCAPE, CMD_NO_CMD, false));
     }
 
     vector<MenuEntry*> show(bool reuse_selections = false) override
@@ -231,6 +238,9 @@ void changeSetting()
                 case 1:
                     // Change configuration
                     Options.clear_messages = !Options.clear_messages;
+
+                    // Open submenu again
+                    openEditSubOptions();
 
                     // Store which option was changed and what its new configuration is
                     std::string optionChanged = "clear_messages";
@@ -323,7 +333,7 @@ void saveChanges()
 
             // Output changes to message log
             for (int i = 0; i < changesStrings.size(); i++)
-                mpr("Changes to " + changesStrings.at(i) + " saved to 'init.txt'.");
+                mpr("Change to " + changesStrings.at(i) + " saved to 'init.txt'.");
 
             // Clear changes vectors
             changesStrings.clear();
