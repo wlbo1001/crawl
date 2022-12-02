@@ -13,17 +13,17 @@ int opt; // specifies the specific option being configured
 std::vector<std::string> changesStrings; // e.g. "clear_messages"
 std::vector<bool> changesBooleans; // e.g. Options.clear_messages
 
-string _binaryToString(bool input) 
+string _binaryToString(bool input)
 {
    return input ? "true" : "false";
 }
 
 string _getCurrentState(settingType settingType, int settingName)
 {
-    switch(settingType)
+    switch (settingType)
     {
         case BOOL:
-            switch(settingName)
+            switch (settingName)
             {
                 case 1:
                     return "Clear Messages \t\t\t" + _binaryToString(Options.clear_messages);
@@ -232,7 +232,7 @@ void changeSetting()
 {
     switch (type)
     {
-        case BOOL: 
+        case BOOL:
             switch (opt)
             {
                 case 1:
@@ -265,7 +265,7 @@ void changeSetting()
                     break;
             }
             break;
-        case KEYBIND: 
+        case KEYBIND:
             break;
         case DROPDOWN:
             break;
