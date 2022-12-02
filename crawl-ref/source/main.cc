@@ -1970,7 +1970,7 @@ public:
 #endif
         add_entry(new CmdMenuEntry("Edit macros",
             MEL_ITEM, '~', CMD_MACRO_MENU));
-        add_entry(new CmdMenuEntry("Edit settings files",//------------------------------------------------------------------------------------------------------
+        add_entry(new CmdMenuEntry("Edit settings",//------------------------------------------------------------------------------------------------------
             MEL_ITEM, '*', CMD_EDIT_OPTIONS));
         add_entry(new CmdMenuEntry("Help and manual",
             MEL_ITEM, '?', CMD_DISPLAY_COMMANDS));

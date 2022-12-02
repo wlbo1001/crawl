@@ -26,7 +26,11 @@ string _getCurrentState(settingType settingType, int settingName)
             switch (settingName)
             {
                 case 1:
-                    return "Clear Messages \t\t\t" + _binaryToString(Options.clear_messages);
+                    return "Clear Messages           \t\t\t" + _binaryToString(Options.clear_messages);
+                case 2:
+                    return "Condense Repeat Messages \t\t\t" + _binaryToString(Options.msg_condense_repeats);
+                case 3:
+                    return "Show More                \t\t\t" + _binaryToString(Options.show_more);
             }
     }
 }
@@ -96,19 +100,24 @@ public:
     void fill_entries()
     {
         clear();
-        add_entry(new CmdMenuEntry("Edit Options Menu", MEL_TITLE));
+        add_entry(new CmdMenuEntry("Settings Menu", MEL_TITLE));
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
         // n.b. CMD_SAVE_GAME_NOW crashes on returning to the main menu if we
         // don't exit out of this popup now, not sure why
+        /*
         add_entry(new CmdMenuEntry("Key Binds",//------------------------------------------------------------------------------------------------------
             MEL_ITEM, '*', CMD_EDIT_SUBOPTIONS));
-        add_entry(new CmdMenuEntry("In Game Options",//------------------------------------------------------------------------------------------------------
+        */
+        add_entry(new CmdMenuEntry("In-Game Options",//------------------------------------------------------------------------------------------------------
             MEL_ITEM, '&', CMD_EDIT_SUBOPTIONS));
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
         add_entry(new CmdMenuEntry("Save Changes", MEL_ITEM, 's', CMD_SAVE_CHANGES));
-        CmdMenuEntry* quitWOSavingME = new CmdMenuEntry("Back to Game Menu without Saving", MEL_ITEM, 'Q', CMD_NO_CMD, false);
+        add_entry(new CmdMenuEntry("Back to Game Menu", MEL_ITEM, CK_ESCAPE, CMD_NO_CMD, false));
+        /*
+        CmdMenuEntry* quitWOSavingME = new CmdMenuEntry("Back to Game Menu Without Saving", MEL_ITEM, 'Q', CMD_NO_CMD, false);
         quitWOSavingME->add_hotkey('q');
         add_entry(quitWOSavingME);
+        */
 
     }
 
@@ -183,11 +192,11 @@ public:
                     switch (c->cmd)
                     {
                         case CMD_EDIT_OPTION:
-                        ::process_command(c->cmd, CMD_GAME_MENU);
+                            ::process_command(c->cmd, CMD_GAME_MENU);
                         default:
-                        // otherwise, exit menu and process in the main process_command call
-                        cmd = c->cmd;
-                        return false;
+                            // otherwise, exit menu and process in the main process_command call
+                            cmd = c->cmd;
+                            return false;
                     }
                 }
             }
@@ -205,12 +214,14 @@ public:
     void fill_entries()
     {
         clear();
-        add_entry(new CmdMenuEntry("Test Sub-Menu", MEL_TITLE));
+        add_entry(new CmdMenuEntry("Configuration of In-Game Options", MEL_TITLE));
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
         items[1]->add_tile(tileidx_command(CMD_GAME_MENU));
         // n.b. CMD_SAVE_GAME_NOW crashes on returning to the main menu if we
         // don't exit out of this popup now, not sure why
         add_entry(new CmdMenuEntry(_getCurrentState(BOOL, 1), MEL_ITEM, '1', CMD_EDIT_OPTION, false, BOOL, 1));
+        add_entry(new CmdMenuEntry(_getCurrentState(BOOL, 2), MEL_ITEM, '2', CMD_EDIT_OPTION, false, BOOL, 2));
+        add_entry(new CmdMenuEntry(_getCurrentState(BOOL, 3), MEL_ITEM, '3', CMD_EDIT_OPTION, false, BOOL, 3));
         add_entry(new CmdMenuEntry("", MEL_SUBTITLE));
         add_entry(new CmdMenuEntry("Back to Settings Menu", MEL_ITEM, CK_ESCAPE, CMD_NO_CMD, false));
     }
@@ -236,6 +247,7 @@ void changeSetting()
             switch (opt)
             {
                 case 1:
+                {
                     // Change configuration
                     Options.clear_messages = !Options.clear_messages;
 
@@ -263,7 +275,69 @@ void changeSetting()
                     }
 
                     break;
+                }
+                case 2:
+                {
+                    // Change configuration
+                    Options.msg_condense_repeats = !Options.msg_condense_repeats;
+
+                    // Open submenu again
+                    openEditSubOptions();
+
+                    // Store which option was changed and what its new configuration is
+                    std::string optionChanged = "msg_condense_repeats";
+                    bool optionConfiguration = Options.msg_condense_repeats;
+
+                    // Add configuration to changes vectors
+                    bool configurationExists = false;
+                    for (int i = 0; i < changesStrings.size(); i++)
+                    {
+                        if (changesStrings.at(i) == optionChanged)
+                        {
+                            configurationExists = true;
+                            changesBooleans.at(i) = optionConfiguration;
+                        }
+                    }
+                    if (!configurationExists)
+                    {
+                        changesStrings.push_back(optionChanged);
+                        changesBooleans.push_back(optionConfiguration);
+                    }
+
+                    break;
+                }
+                case 3:
+                {
+                    // Change configuration
+                    Options.show_more = !Options.show_more;
+
+                    // Open submenu again
+                    openEditSubOptions();
+
+                    // Store which option was changed and what its new configuration is
+                    std::string optionChanged = "show_more";
+                    bool optionConfiguration = Options.show_more;
+
+                    // Add configuration to changes vectors
+                    bool configurationExists = false;
+                    for (int i = 0; i < changesStrings.size(); i++)
+                    {
+                        if (changesStrings.at(i) == optionChanged)
+                        {
+                            configurationExists = true;
+                            changesBooleans.at(i) = optionConfiguration;
+                        }
+                    }
+                    if (!configurationExists)
+                    {
+                        changesStrings.push_back(optionChanged);
+                        changesBooleans.push_back(optionConfiguration);
+                    }
+
+                    break;
+                }
             }
+
             break;
         case KEYBIND:
             break;
@@ -295,6 +369,7 @@ void saveChanges()
             // Copy lines that do not contain relevant information
             while (std::getline(initFileOld, currentLine))
             {
+                bool appendedLine = false;
                 for (int i = 0; i < changesStrings.size(); i++)
                 {
                     if (currentLine.find(changesStrings.at(i)) != string::npos)
@@ -305,10 +380,12 @@ void saveChanges()
                             initFileNew << changesStrings.at(i) << " = true" << endl;
                         else
                             initFileNew << changesStrings.at(i) << " = false" << endl;
+
+                        appendedLine = true;
                     }
-                    else
-                        initFileNew << currentLine << endl;
                 }
+                if (!appendedLine)
+                    initFileNew << currentLine << endl;
             }
 
             // Append configurations that do not already exist
